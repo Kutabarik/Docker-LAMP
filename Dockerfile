@@ -1,27 +1,26 @@
-# Используйте базовый образ PHP, который включает инструменты, такие как git и unzip, необходимые для установки Composer.
-FROM php:latest
+FROM php:7.4-fpm
 
-# Установите Composer в контейнер.
-RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-RUN php composer-setup.php
-RUN php -r "unlink('composer-setup.php');"
-RUN mv composer.phar /usr/local/bin/composer
+#RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+#RUN php composer-setup.php
+#RUN php -r "unlink('composer-setup.php');"
+#RUN mv composer.phar /usr/local/bin/composer
 
-# Установите дополнительные пакеты, необходимые для запуска Laravel.
-RUN apt-get update && apt-get install -y libpng-dev zip unzip
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+	&& php /usr/local/bin/composer self-update \
 
-# Создайте директорию приложения Laravel.
+	RUN apt-get update && apt-get install -y \
+	libpng-dev \
+	zip \
+	unzip
+
+RUN docker-php-ext-install pdo pdo_mysql gd
+
 WORKDIR /var/www/html
 
-# Копируйте файлы Laravel приложения в контейнер.
-COPY ./app .
+COPY . .
 
-# Установите зависимости Laravel.
 RUN composer install
 
-# Копируйте файл .env.example в файл .env.
 RUN cp .env.example .env
 
-# Генерируйте ключ приложения Laravel.
 RUN php artisan key:generate
-

@@ -28,7 +28,6 @@ services:
       - ./public:/var/www/html
     networks:
       - web
-#    command: composer install && php artisan key:generate
 
   mysql:
     image: mysql:latest
@@ -42,6 +41,8 @@ services:
       - ./mysql:/var/lib/mysql
     networks:
       - web
+    ports:
+      - "3306:3306"
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
